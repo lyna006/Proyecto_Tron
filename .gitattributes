@@ -1,6 +1,5 @@
 # Pulled from github-for-unity/Unity on 10/26/19:
 # https://github.com/github-for-unity/Unity/blob/master/src/GitHub.Api/Resources/.gitattributes
-
 * text=auto
 # Unity files
 *.meta -text merge=unityyamlmerge diff
@@ -80,4 +79,5 @@
 *.gz filter=lfs diff=lfs merge=lfs -text
 *.rar filter=lfs diff=lfs merge=lfs -text
 *.tar filter=lfs diff=lfs merge=lfs -text
+Library/PackageCache/com.unity.burst@1.8.7/.Runtime/libburst-llvm-15.dylib filter=lfs diff=lfs merge=lfs -text
 *.dylib filter=lfs diff=lfs merge=lfs -text
