@@ -77,11 +77,31 @@ public class PlayerController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        TrailNode trailNode = other.GetComponent<TrailNode>();
+        if (trailNode != null)
+        {
+            if (trailNode.owner != this.gameObject)  // Verifica que el nodo no sea de la propia estela
+            {
+                // Game over
+                Destroy(gameObject);
+                Debug.Log("Game Over! You hit another trail.");
+            }
+        }
+        else if (other.CompareTag("BotTag"))
+        {
+            // Game over
+            Destroy(gameObject);
+            Debug.Log("Game Over! You hit a bot.");
+        }
+
         if (other.CompareTag("LengthItem"))
         {
+            Debug.Log("Item recogido, incrementando estela.");
             // Aumenta la longitud de la estela
             trailController.SetMaxNodes(trailController.maxNodes + 5);  // Ajusta el valor según tus necesidades
             Destroy(other.gameObject);
         }
+
+    
     }
 }

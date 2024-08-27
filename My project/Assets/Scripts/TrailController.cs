@@ -24,7 +24,7 @@ public class TrailController : MonoBehaviour
             GameObject node = trailNodes[i];
             SpriteRenderer sprite = node.GetComponent<SpriteRenderer>();
             Color color = sprite.color;
-            color.a -= Time.deltaTime / 2; // Ajusta la velocidad de desvanecimiento aquí
+            color.a -= Time.deltaTime / 3; // Ajusta la velocidad de desvanecimiento aquí
             sprite.color = color;
 
             if (color.a <= 0)
@@ -44,6 +44,7 @@ public class TrailController : MonoBehaviour
         }
 
         GameObject newNode = Instantiate(trailNodePrefab, transform.position, Quaternion.identity);
+        newNode.GetComponent<TrailNode>().owner = this.gameObject; // Asigna el jugador como propietario
         trailNodes.Add(newNode);
     }
 
@@ -51,6 +52,7 @@ public class TrailController : MonoBehaviour
     public void SetMaxNodes(int newMaxNodes)
     {
         maxNodes = newMaxNodes;
+        Debug.Log("Nuevo tamaño máximo de nodos: " + newMaxNodes);
 
         // Si ya hay más nodos de los permitidos, eliminarlos
         while (trailNodes.Count > maxNodes)
