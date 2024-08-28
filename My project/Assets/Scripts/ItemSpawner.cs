@@ -1,55 +1,47 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class ItemSpawner : MonoBehaviour
 {
-    public GameObject itemPrefab;  // Prefab del ítem que aumenta la longitud de la estela
-    public float spawnInterval = 5f;  // Intervalo de tiempo para spawn
-    public float xRange = 8f;  // Rango en el eje X
-    public float yRange = 4f;  // Rango en el eje Y
-    public int maxItemsOnScreen = 3;  // Máximo número de ítems en pantalla
+    public GameObject lengthItemPrefab; // Prefab del ítem a generar
+    public float spawnInterval = 20f; // Intervalo entre cada generación de ítem
+    public float spawnRangeX = 10f; // Rango en el eje X para la posición de spawn
+    public float spawnRangeY = 5f;  // Rango en el eje Y para la posición de spawn
+    public int maxItems = 2; // Número máximo de ítems en pantalla
 
-    private float nextSpawnTime;
+    private float nextSpawnTime = 0f; // Tiempo para la próxima generación
+    private List<GameObject> spawnedItems = new List<GameObject>(); // Lista para controlar los ítems generados
 
-    private void Start()
+    void Update()
     {
-        if (itemPrefab == null)
+        // Elimina los ítems que han sido destruidos
+        spawnedItems.RemoveAll(item => item == null);
+
+        // Solo genera un nuevo ítem si hay menos de maxItems en pantalla
+        if (Time.time >= nextSpawnTime && spawnedItems.Count < maxItems)
         {
-            Debug.LogError("Item prefab is not assigned.");
+            SpawnItem();
+            nextSpawnTime = Time.time + spawnInterval;
+        }
+    }
+
+    void SpawnItem()
+    {
+        // Verifica si el prefab del ítem está asignado
+        if (lengthItemPrefab == null)
+        {
+            Debug.LogError("lengthItemPrefab is not assigned! Please assign it in the Inspector.");
             return;
         }
 
-        nextSpawnTime = Time.time + 2f;  // Comienza a spawnear después de 2 segundos
-    }
-
-    private void Update()
-    {
-        if (Time.time >= nextSpawnTime)
-        {
-            // Verifica si el número de ítems en la pantalla es menor que el límite
-            if (CountItemsOnScreen() < maxItemsOnScreen)
-            {
-                SpawnItem();
-            }
-            nextSpawnTime = Time.time + spawnInterval;  // Establece el siguiente tiempo de spawn
-        }
-    }
-
-    private void SpawnItem()
-    {
+        // Calcula una posición aleatoria dentro del rango especificado
         Vector2 spawnPosition = new Vector2(
-            Random.Range(-xRange, xRange),
-            Random.Range(-yRange, yRange)
+            Random.Range(-spawnRangeX, spawnRangeX),
+            Random.Range(-spawnRangeY, spawnRangeY)
         );
 
-        Debug.Log($"Spawning item at: {spawnPosition}");
-
-        Instantiate(itemPrefab, spawnPosition, Quaternion.identity);
-    }
-
-    private int CountItemsOnScreen()
-    {
-        // Cuenta el número de ítems en la pantalla
-        GameObject[] items = GameObject.FindGameObjectsWithTag("LengthItem"); // Reemplaza "ItemTag" con el tag correcto para tus ítems
-        return items.Length;
+        // Genera una instancia del prefab en la posición calculada
+        GameObject newItem = Instantiate(lengthItemPrefab, spawnPosition, Quaternion.identity);
+        spawnedItems.Add(newItem); // Añade el nuevo ítem a la lista de ítems generados
     }
 }

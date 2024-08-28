@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class PlayerController : MonoBehaviour
     public GameObject trailNodePrefab;  // Prefab del nodo de la estela
     public GameObject lengthItemPrefab; // Prefab del item que aumenta la longitud de la estela
     public float trailLengthIncrease = 3; // Cantidad en la que se aumenta la longitud de la estela al recoger un item
+    public GameOverActions gameOverActions; // Referencia al script GameOverActions
 
     private Vector2 direction = Vector2.zero;
     private SpriteRenderer spriteRenderer;
@@ -22,6 +24,11 @@ public class PlayerController : MonoBehaviour
         trailController.maxNodes = 3; // Establece la longitud inicial de la estela
 
         mainCamera = Camera.main;  // Obtiene la referencia a la cámara principal
+
+        if (gameOverActions == null)
+        {
+            Debug.LogError("GameOverActions is not assigned!");
+        }
     }
 
     void Update()
@@ -83,15 +90,13 @@ public class PlayerController : MonoBehaviour
             if (trailNode.owner != this.gameObject)  // Verifica que el nodo no sea de la propia estela
             {
                 // Game over
-                Destroy(gameObject);
-                Debug.Log("Game Over! You hit another trail.");
+                HandleGameOver();
             }
         }
         else if (other.CompareTag("BotTag"))
         {
             // Game over
-            Destroy(gameObject);
-            Debug.Log("Game Over! You hit a bot.");
+            HandleGameOver();
         }
 
         if (other.CompareTag("LengthItem"))
@@ -101,7 +106,20 @@ public class PlayerController : MonoBehaviour
             trailController.SetMaxNodes(trailController.maxNodes + 5);  // Ajusta el valor según tus necesidades
             Destroy(other.gameObject);
         }
+    }
 
-    
+    void HandleGameOver()
+    {
+        Destroy(gameObject); // Destruye el jugador
+        Debug.Log("Game Over! You hit a bot or another trail.");
+        if (gameOverActions != null)
+        {
+            gameOverActions.ShowGameOver(); // Muestra la pantalla de Game Over
+        }
+        else
+        {
+            Debug.LogError("GameOverActions reference is missing.");
+        }
     }
 }
+

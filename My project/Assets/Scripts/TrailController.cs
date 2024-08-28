@@ -22,9 +22,25 @@ public class TrailController : MonoBehaviour
         for (int i = trailNodes.Count - 1; i >= 0; i--)
         {
             GameObject node = trailNodes[i];
+
+            // Verifica si el nodo todavía existe
+            if (node == null)
+            {
+                trailNodes.RemoveAt(i);
+                continue;
+            }
+
             SpriteRenderer sprite = node.GetComponent<SpriteRenderer>();
+
+            if (sprite == null)
+            {
+                trailNodes.RemoveAt(i);
+                Destroy(node);
+                continue;
+            }
+
             Color color = sprite.color;
-            color.a -= Time.deltaTime / 3; // Ajusta la velocidad de desvanecimiento aquí
+            color.a -= Time.deltaTime / 2; // Ajusta la velocidad de desvanecimiento aquí
             sprite.color = color;
 
             if (color.a <= 0)
@@ -34,6 +50,7 @@ public class TrailController : MonoBehaviour
             }
         }
     }
+
 
     void SpawnTrailNode()
     {

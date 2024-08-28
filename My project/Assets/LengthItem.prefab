@@ -144,11 +144,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90af5357fe7b7b640ab252cd6394e472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemPrefab: {fileID: 5071503549125807803}
-  spawnInterval: 3
-  xRange: 8
-  yRange: 4
-  maxItemsOnScreen: 3
+  lengthItemPrefab: {fileID: 5071503549125807803}
+  spawnInterval: 20
+  spawnRangeX: 10
+  spawnRangeY: 5
+  maxItemsOnScreen: 2
 --- !u!50 &5894902016454827476
 Rigidbody2D:
   serializedVersion: 4
