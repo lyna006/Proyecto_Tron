@@ -16,21 +16,34 @@ public class BotController : MonoBehaviour
     private float botWidth;
     private float botHeight;
 
-    void Start()
+    // Inicializa el BotController con los parámetros necesarios
+    public void Initialize(Vector2 screenBounds)
     {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>(); // Obtener referencia al SpriteRenderer
+
+        if (rb == null || spriteRenderer == null)
+        {
+            Debug.LogError("Rigidbody2D or SpriteRenderer not found on BotController.");
+            return;
+        }
+
+        this.screenBounds = screenBounds;
         SetRandomDirection(); // Inicializa con una dirección aleatoria
         nextDirectionChangeTime = Time.time + changeDirectionInterval; // Establece el próximo cambio de dirección
 
-        // Calcular los límites de la pantalla
-        screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
-        botWidth = transform.GetComponent<SpriteRenderer>().bounds.extents.x;
-        botHeight = transform.GetComponent<SpriteRenderer>().bounds.extents.y;
+        // Calcular el tamaño del bot
+        botWidth = spriteRenderer.bounds.extents.x;
+        botHeight = spriteRenderer.bounds.extents.y;
     }
 
     void Update()
     {
+        if (rb == null || spriteRenderer == null)
+        {
+            return; // Evita la actualización si los componentes no están correctamente asignados
+        }
+
         // Movimiento del bot
         rb.velocity = direction * speed;
 

@@ -7,7 +7,7 @@ public class TrailController : MonoBehaviour
     public int maxNodes = 3;  // Tamaño inicial de la estela
     public float nodeSpawnInterval = 0.1f;
 
-    private List<GameObject> trailNodes = new List<GameObject>();
+    private LinkedList<GameObject> trailNodes = new LinkedList<GameObject>();
     private float lastNodeSpawnTime;
 
     void Update()
@@ -19,23 +19,26 @@ public class TrailController : MonoBehaviour
         }
 
         // Fade out and remove old nodes
-        for (int i = trailNodes.Count - 1; i >= 0; i--)
+        var node = trailNodes.Last;
+        while (node != null)
         {
-            GameObject node = trailNodes[i];
+            var current = node;
+            node = node.Previous;
 
-            // Verifica si el nodo todavía existe
-            if (node == null)
+            GameObject gameObject = current.Value;
+
+            if (gameObject == null)
             {
-                trailNodes.RemoveAt(i);
+                trailNodes.Remove(current);
                 continue;
             }
 
-            SpriteRenderer sprite = node.GetComponent<SpriteRenderer>();
+            SpriteRenderer sprite = gameObject.GetComponent<SpriteRenderer>();
 
             if (sprite == null)
             {
-                trailNodes.RemoveAt(i);
-                Destroy(node);
+                trailNodes.Remove(current);
+                Destroy(gameObject);
                 continue;
             }
 
@@ -45,24 +48,23 @@ public class TrailController : MonoBehaviour
 
             if (color.a <= 0)
             {
-                Destroy(node);
-                trailNodes.RemoveAt(i);
+                Destroy(gameObject);
+                trailNodes.Remove(current);
             }
         }
     }
-
 
     void SpawnTrailNode()
     {
         if (trailNodes.Count >= maxNodes)
         {
-            Destroy(trailNodes[0]);
-            trailNodes.RemoveAt(0);
+            Destroy(trailNodes.First.Value);
+            trailNodes.RemoveFirst();
         }
 
         GameObject newNode = Instantiate(trailNodePrefab, transform.position, Quaternion.identity);
         newNode.GetComponent<TrailNode>().owner = this.gameObject; // Asigna el jugador como propietario
-        trailNodes.Add(newNode);
+        trailNodes.AddLast(newNode);
     }
 
     // Método para ajustar el tamaño de la estela en tiempo real
@@ -74,8 +76,8 @@ public class TrailController : MonoBehaviour
         // Si ya hay más nodos de los permitidos, eliminarlos
         while (trailNodes.Count > maxNodes)
         {
-            Destroy(trailNodes[0]);
-            trailNodes.RemoveAt(0);
+            Destroy(trailNodes.First.Value);
+            trailNodes.RemoveFirst();
         }
     }
 }

@@ -2,32 +2,35 @@ using UnityEngine;
 
 public class BotSpawner : MonoBehaviour
 {
-    public GameObject botPrefab;  // Prefab del bot
-    public float spawnInterval = 5f;  // Intervalo de tiempo para spawn
-    public float xRange = 8f;  // Rango en el eje X
-    public float yRange = 4f;  // Rango en el eje Y
-    private int botCount = 0;  // Contador de bots generados
-    public int maxBots = 2;  // Número máximo de bots en la escena
+    public GameObject botPrefab;
+    public int botCount = 5;
 
-    void Start()
+    private Vector2 screenBounds;
+
+    // Inicializa el BotSpawner con los parámetros necesarios
+    public void InitializeSpawner(Vector2 screenBounds)
     {
-        // Genera los bots al iniciar
-        for (int i = 0; i < maxBots; i++)
-        {
-            SpawnBot();
-        }
-
-        // Inicia la generación periódica si se desea
-        InvokeRepeating("SpawnBot", 2f, spawnInterval);
+        this.screenBounds = screenBounds;
+        SpawnBots();
     }
 
-    void SpawnBot()
+    void SpawnBots()
     {
-        if (botCount < maxBots)
+        for (int i = 0; i < botCount; i++)
         {
-            Vector2 spawnPosition = new Vector2(Random.Range(-xRange, xRange), Random.Range(-yRange, yRange));
-            Instantiate(botPrefab, spawnPosition, Quaternion.identity);
-            botCount++;
+            GameObject bot = Instantiate(botPrefab, RandomPosition(), Quaternion.identity);
+            BotController botController = bot.GetComponent<BotController>();
+            if (botController != null)
+            {
+                botController.Initialize(screenBounds);
+            }
         }
+    }
+
+    Vector2 RandomPosition()
+    {
+        float x = Random.Range(-screenBounds.x, screenBounds.x);
+        float y = Random.Range(-screenBounds.y, screenBounds.y);
+        return new Vector2(x, y);
     }
 }

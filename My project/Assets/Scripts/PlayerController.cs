@@ -1,125 +1,62 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
-    public float speed = 5f;
-    public Sprite spriteDerecha;
-    public Sprite spriteIzquierda;
-    public GameObject trailNodePrefab;  // Prefab del nodo de la estela
-    public GameObject lengthItemPrefab; // Prefab del item que aumenta la longitud de la estela
-    public float trailLengthIncrease = 3; // Cantidad en la que se aumenta la longitud de la estela al recoger un item
-    public GameOverActions gameOverActions; // Referencia al script GameOverActions
+    public float speed = 5f; // Velocidad del jugador
+    private Rigidbody2D rb; // Referencia al Rigidbody2D del jugador
+    private Vector2 screenBounds; // Límites de la pantalla
 
-    private Vector2 direction = Vector2.zero;
-    private SpriteRenderer spriteRenderer;
-    private TrailController trailController;
-    private Camera mainCamera;  // Referencia a la cámara principal
-
-    void Start()
+    // Inicializa el PlayerController con los parámetros necesarios
+    public void InitializePlayer(Vector2 screenBounds)
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        trailController = gameObject.AddComponent<TrailController>();
-        trailController.trailNodePrefab = trailNodePrefab;
-        trailController.maxNodes = 3; // Establece la longitud inicial de la estela
-
-        mainCamera = Camera.main;  // Obtiene la referencia a la cámara principal
-
-        if (gameOverActions == null)
+        rb = GetComponent<Rigidbody2D>();
+        if (rb == null)
         {
-            Debug.LogError("GameOverActions is not assigned!");
+            Debug.LogError("Rigidbody2D not found on PlayerController.");
+            return;
         }
+
+        // Calcular los límites de la pantalla
+        this.screenBounds = screenBounds;
     }
 
     void Update()
     {
-        HandleInput();
-        if (direction != Vector2.zero)
-        {
-            Move();
-            UpdateSprite();
-        }
+        // Movimiento del jugador
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
+
+        Vector2 movement = new Vector2(moveHorizontal, moveVertical) * speed;
+        rb.velocity = movement;
+
+        // Mantener al jugador dentro de los límites de la pantalla
+        KeepPlayerInBounds();
     }
 
-    void HandleInput()
+    void KeepPlayerInBounds()
     {
-        if (Input.GetKey(KeyCode.UpArrow)) direction = Vector2.up;
-        else if (Input.GetKey(KeyCode.DownArrow)) direction = Vector2.down;
-        else if (Input.GetKey(KeyCode.LeftArrow)) direction = Vector2.left;
-        else if (Input.GetKey(KeyCode.RightArrow)) direction = Vector2.right;
-        else direction = Vector2.zero;
-    }
+        Vector3 pos = transform.position;
 
-    void Move()
-    {
-        Vector3 newPosition = transform.position + (Vector3)direction * speed * Time.deltaTime;
-        newPosition = ClampPositionToScreen(newPosition);  // Limita la posición dentro de la pantalla
-        transform.position = newPosition;
-    }
-
-    void UpdateSprite()
-    {
-        if (direction == Vector2.left)
-            spriteRenderer.sprite = spriteIzquierda;
-        else if (direction == Vector2.right)
-            spriteRenderer.sprite = spriteDerecha;
-    }
-
-    Vector3 ClampPositionToScreen(Vector3 position)
-    {
-        // Calcula los límites de la pantalla en coordenadas del mundo
-        float screenWidth = Camera.main.orthographicSize * Camera.main.aspect;
-        float screenHeight = Camera.main.orthographicSize;
-
-        // Obtiene el tamaño del sprite en coordenadas del mundo
-        float spriteWidth = spriteRenderer.bounds.size.x * 0.5f;
-        float spriteHeight = spriteRenderer.bounds.size.y * 0.5f;
-
-        // Limita la posición del jugador dentro de los límites de la pantalla
-        position.x = Mathf.Clamp(position.x, -screenWidth + spriteWidth, screenWidth - spriteWidth);
-        position.y = Mathf.Clamp(position.y, -screenHeight + spriteHeight, screenHeight - spriteHeight);
-
-        return position;
-    }
-
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        TrailNode trailNode = other.GetComponent<TrailNode>();
-        if (trailNode != null)
+        if (pos.x > screenBounds.x)
         {
-            if (trailNode.owner != this.gameObject)  // Verifica que el nodo no sea de la propia estela
-            {
-                // Game over
-                HandleGameOver();
-            }
-        }
-        else if (other.CompareTag("BotTag"))
-        {
-            // Game over
-            HandleGameOver();
+            pos.x = screenBounds.x;
         }
 
-        if (other.CompareTag("LengthItem"))
+        if (pos.x < -screenBounds.x)
         {
-            Debug.Log("Item recogido, incrementando estela.");
-            // Aumenta la longitud de la estela
-            trailController.SetMaxNodes(trailController.maxNodes + 5);  // Ajusta el valor según tus necesidades
-            Destroy(other.gameObject);
+            pos.x = -screenBounds.x;
         }
-    }
 
-    void HandleGameOver()
-    {
-        Destroy(gameObject); // Destruye el jugador
-        Debug.Log("Game Over! You hit a bot or another trail.");
-        if (gameOverActions != null)
+        if (pos.y > screenBounds.y)
         {
-            gameOverActions.ShowGameOver(); // Muestra la pantalla de Game Over
+            pos.y = screenBounds.y;
         }
-        else
+
+        if (pos.y < -screenBounds.y)
         {
-            Debug.LogError("GameOverActions reference is missing.");
+            pos.y = -screenBounds.y;
         }
+
+        transform.position = pos;
     }
 }
-
