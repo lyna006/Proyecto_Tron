@@ -53,7 +53,7 @@ public class Item : MonoBehaviour
         }
     }
 
-    private void Explode(GameObject player)
+    public void Explode(GameObject player)
     {
         Debug.Log("¡Bomba! El jugador ha explotado.");
         Destroy(player);  

@@ -7,16 +7,23 @@ public class PlayerController : MonoBehaviour
     private List<Transform> _segments = new List<Transform>();
     public Transform segmentPrefab;
     public int initialSize = 3;
+    float moveSpeed = 2.0f;
 
     private bool isShieldActive = false;
     private bool isHyperSpeedActive = false;
-    private float hyperSpeedDuration = 5f; // Ejemplo de duración
-    private float shieldDuration = 5f; // Ejemplo de duración
-    private float hyperSpeedMultiplier = 2f; // Ejemplo de multiplicador de velocidad
+    private float hyperSpeedDuration = 5f;
+    private float shieldDuration = 5f;
+    private float hyperSpeedMultiplier = 2f;
 
-    private void Start()
+    private GridManager gridManager;
+    private Nodo2 nodoActual;
+
+    void Start()
     {
+        gridManager = FindObjectOfType<GridManager>();
         ResetState();
+        nodoActual = gridManager.primerNodo; // Inicia en el primer nodo
+        transform.position = nodoActual.posicion; // Ajustar según tu grid
     }
 
     private void Update()
@@ -38,9 +45,9 @@ public class PlayerController : MonoBehaviour
             _direction = Vector2.right;
         }
 
+        // Manejo de duración de poderes
         if (isHyperSpeedActive)
         {
-            // Reduce the duration of the hyper speed effect
             hyperSpeedDuration -= Time.deltaTime;
             if (hyperSpeedDuration <= 0)
             {
@@ -50,7 +57,6 @@ public class PlayerController : MonoBehaviour
 
         if (isShieldActive)
         {
-            // Reduce the duration of the shield effect
             shieldDuration -= Time.deltaTime;
             if (shieldDuration <= 0)
             {
@@ -61,29 +67,37 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        for (int i = _segments.Count - 1; i > 0; i--)
+        if (_direction != Vector2.zero)
         {
-            _segments[i].position = _segments[i - 1].position;
+            Mover();
         }
+    }
 
-        float moveSpeed = 1.0f;
-        if (isHyperSpeedActive)
+    private void Mover()
+    {
+        // Calcula la nueva posición del nodo
+        Vector2 nuevaPosicion = nodoActual.posicion + _direction;
+
+        // Verifica si el nodo existe en el grid
+        Nodo2 siguienteNodo = gridManager.GetNodoEn(nuevaPosicion);
+        if (siguienteNodo != null)
         {
-            moveSpeed *= hyperSpeedMultiplier;
-        }
+            nodoActual = siguienteNodo;
+            transform.position = nodoActual.posicion;
 
-        this.transform.position = new Vector3(
-            Mathf.Round(this.transform.position.x) + _direction.x * moveSpeed,
-            Mathf.Round(this.transform.position.y) + _direction.y * moveSpeed,
-            0.0f
-        );
+            // Añadir un nuevo segmento si se mueve
+            Grow();
+        }
     }
 
     public void Grow()
     {
-        Transform segment = Instantiate(this.segmentPrefab);
-        segment.position = _segments[_segments.Count - 1].position;
-        _segments.Add(segment);
+        if (_segments.Count < initialSize)
+        {
+            Transform segment = Instantiate(segmentPrefab);
+            segment.position = _segments[_segments.Count - 1].position; // Posición del último segmento
+            _segments.Add(segment);
+        }
     }
 
     public void ResetState()
@@ -98,34 +112,13 @@ public class PlayerController : MonoBehaviour
         {
             _segments.Add(Instantiate(this.segmentPrefab));
         }
-        this.transform.position = Vector3.zero;
+        this.transform.position = Vector3.zero; // Verifica esto
     }
 
-    public void ActivateShield()
-    {
-        isShieldActive = true;
-        // Aquí puedes agregar la lógica visual para mostrar el escudo
-        // Por ejemplo, cambiar el color o agregar un efecto visual
-    }
-
-    public void DeactivateShield()
-    {
-        isShieldActive = false;
-        // Aquí puedes agregar la lógica visual para ocultar el escudo
-    }
-
-    public void ActivateHyperSpeed()
-    {
-        isHyperSpeedActive = true;
-        hyperSpeedDuration = 5f; // Ajusta la duración como desees
-        // Aquí puedes agregar la lógica visual para mostrar la hiper velocidad
-    }
-
-    public void DeactivateHyperSpeed()
-    {
-        isHyperSpeedActive = false;
-        // Aquí puedes agregar la lógica visual para ocultar la hiper velocidad
-    }
+    public void ActivateShield() { isShieldActive = true; }
+    public void DeactivateShield() { isShieldActive = false; }
+    public void ActivateHyperSpeed() { isHyperSpeedActive = true; hyperSpeedDuration = 5f; }
+    public void DeactivateHyperSpeed() { isHyperSpeedActive = false; }
 
     private void OnTriggerEnter2D(Collider2D other)
     {

@@ -137,7 +137,7 @@ GameObject:
   - component: {fileID: 41139243}
   m_Layer: 0
   m_Name: bomb
-  m_TagString: Untagged
+  m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -408,6 +408,7 @@ GameObject:
   m_Component:
   - component: {fileID: 271841925}
   - component: {fileID: 271841924}
+  - component: {fileID: 271841926}
   m_Layer: 0
   m_Name: GridArea
   m_TagString: Untagged
@@ -475,6 +476,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &271841926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 271841923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d15e4c6eb7ce759469ff8458427a63d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  columnas: 28
+  filas: 15
+  spritePrefab: {fileID: 6961781969923548233, guid: 45ed9bbd5b71120448426cdc6f38402b, type: 3}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -711,7 +727,7 @@ GameObject:
   - component: {fileID: 864492604}
   m_Layer: 0
   m_Name: shield
-  m_TagString: Untagged
+  m_TagString: Power
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -985,7 +1001,7 @@ GameObject:
   - component: {fileID: 1327986368}
   m_Layer: 0
   m_Name: velocity
-  m_TagString: Untagged
+  m_TagString: Power
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1129,7 +1145,7 @@ GameObject:
   - component: {fileID: 1448317781}
   m_Layer: 0
   m_Name: fuel
-  m_TagString: Untagged
+  m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
