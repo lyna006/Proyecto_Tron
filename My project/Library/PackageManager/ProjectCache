@@ -5,7 +5,7 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638623156796515800
+      ticks: 638625761344286015
     m_Hash: 661786584
   m_LockFileStatus:
     m_FilePath: C:/Users/Usuario II 2024/Desktop/Unity/Proyecto_Tron/My project/Packages/packages-lock.json
@@ -13,7 +13,7 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638623156796535670
+      ticks: 638625761344295836
     m_Hash: 1170319048
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
