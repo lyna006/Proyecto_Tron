@@ -1,33 +1,43 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
+    // Variables de movimiento
     private Vector2 _direction = Vector2.right;
     private List<Transform> _segments = new List<Transform>();
     public Transform segmentPrefab;
     public int initialSize = 3;
-    float moveSpeed = 2.0f;
 
+    // Variables de poderes
     private bool isShieldActive = false;
     private bool isHyperSpeedActive = false;
     private float hyperSpeedDuration = 5f;
     private float shieldDuration = 5f;
     private float hyperSpeedMultiplier = 2f;
 
-    private GridManager gridManager;
-    private Nodo2 nodoActual;
+    // Variables de combustible
+    public float fuel = 100f; // Valor de combustible inicial
+    public float fuelConsumptionRate = 5f; // Combustible consumido cada 5 elementos de malla
+    public Slider fuelSlider; // Referencia al UI Slider para la barra de combustible
+    private int stepsSinceLastFuelConsumption = 0; // Pasos desde la última vez que se consumió combustible
 
-    void Start()
+    // Variables para manejar la distancia recorrida
+    private Vector3 lastPosition;
+
+    private void Start()
     {
-        gridManager = FindObjectOfType<GridManager>();
+        // Inicializa el estado del jugador y la barra de combustible
         ResetState();
-        nodoActual = gridManager.primerNodo; // Inicia en el primer nodo
-        transform.position = nodoActual.posicion; // Ajustar según tu grid
+        lastPosition = transform.position;
+        fuel = 100;
+        UpdateFuelUI();
     }
 
     private void Update()
     {
+        // Manejo de dirección de movimiento con teclas
         if (Input.GetKeyDown(KeyCode.W))
         {
             _direction = Vector2.up;
@@ -45,7 +55,7 @@ public class PlayerController : MonoBehaviour
             _direction = Vector2.right;
         }
 
-        // Manejo de duración de poderes
+        // Controles de duración de poderes
         if (isHyperSpeedActive)
         {
             hyperSpeedDuration -= Time.deltaTime;
@@ -67,39 +77,50 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_direction != Vector2.zero)
+        for (int i = _segments.Count - 1; i > 0; i--)
         {
-            Mover();
+            _segments[i].position = _segments[i - 1].position;
         }
+
+        float moveSpeed = 1.0f;
+        if (isHyperSpeedActive)
+        {
+            moveSpeed *= hyperSpeedMultiplier;
+        }
+
+        this.transform.position = new Vector3(
+            Mathf.Round(this.transform.position.x) + _direction.x * moveSpeed,
+            Mathf.Round(this.transform.position.y) + _direction.y * moveSpeed,
+            0.0f
+        );
+
+        // Consume combustible cada vez que se mueve
+        ConsumeFuel();
     }
 
-    private void Mover()
+    private void ConsumeFuel()
     {
-        // Calcula la nueva posición del nodo
-        Vector2 nuevaPosicion = nodoActual.posicion + _direction;
-
-        // Verifica si el nodo existe en el grid
-        Nodo2 siguienteNodo = gridManager.GetNodoEn(nuevaPosicion);
-        if (siguienteNodo != null)
+        if (fuel > 0)
         {
-            nodoActual = siguienteNodo;
-            transform.position = nodoActual.posicion;
-
-            // Añadir un nuevo segmento si se mueve
-            Grow();
+            fuel -= 1; // Ajusta la cantidad consumida según lo necesites
+            UpdateFuelUI();
+        }
+        else
+        {
+            Debug.Log("Out of Fuel!");
         }
     }
 
+
+    // Método para crecer la estela del jugador
     public void Grow()
     {
-        if (_segments.Count < initialSize)
-        {
-            Transform segment = Instantiate(segmentPrefab);
-            segment.position = _segments[_segments.Count - 1].position; // Posición del último segmento
-            _segments.Add(segment);
-        }
+        Transform segment = Instantiate(segmentPrefab);
+        segment.position = _segments[_segments.Count - 1].position;
+        _segments.Add(segment);
     }
 
+    // Resetea el estado inicial del jugador y la estela
     public void ResetState()
     {
         for (int i = 1; i < _segments.Count; i++)
@@ -108,27 +129,79 @@ public class PlayerController : MonoBehaviour
         }
         _segments.Clear();
         _segments.Add(this.transform);
-        for (int i = 1; i < this.initialSize; i++)
+        for (int i = 1; i < initialSize; i++)
         {
-            _segments.Add(Instantiate(this.segmentPrefab));
+            _segments.Add(Instantiate(segmentPrefab));
         }
-        this.transform.position = Vector3.zero; // Verifica esto
+        transform.position = Vector3.zero;
+        fuel = 100f; // Restablece el combustible al máximo
+        UpdateFuelUI();
     }
 
-    public void ActivateShield() { isShieldActive = true; }
-    public void DeactivateShield() { isShieldActive = false; }
-    public void ActivateHyperSpeed() { isHyperSpeedActive = true; hyperSpeedDuration = 5f; }
-    public void DeactivateHyperSpeed() { isHyperSpeedActive = false; }
+    // Métodos para activar y desactivar el escudo
+    public void ActivateShield()
+    {
+        isShieldActive = true;
+        shieldDuration = 5f;
+        Debug.Log("Shield Activated!");
+    }
 
+    public void DeactivateShield()
+    {
+        isShieldActive = false;
+        Debug.Log("Shield Deactivated!");
+    }
+
+    // Métodos para activar y desactivar la hiper velocidad
+    public void ActivateHyperSpeed()
+    {
+        isHyperSpeedActive = true;
+        hyperSpeedDuration = 5f;
+        Debug.Log("HyperSpeed Activated!");
+    }
+
+    public void DeactivateHyperSpeed()
+    {
+        isHyperSpeedActive = false;
+        Debug.Log("HyperSpeed Deactivated!");
+    }
+
+    // Método para consumir combustible
+
+
+    // Actualiza la barra de combustible en la interfaz de usuario
+    private void UpdateFuelUI()
+    {
+        fuelSlider.value = fuel; // Asegúrate de que fuelSlider esté asignado en el Inspector
+    }
+
+
+    // Manejo de colisiones con objetos
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.tag == "Item")
+        if (other.CompareTag("Item"))
         {
-            Grow();
+            Grow(); // Crece la estela al recoger un ítem
         }
-        else if (other.tag == "Obstacle")
+        else if (other.CompareTag("Obstacle"))
         {
-            ResetState();
+            ResetState(); // Reinicia el estado al chocar con un obstáculo
+        }
+        else if (other.CompareTag("Fuel"))
+        {
+            CollectFuel(20); // Ejemplo: añade 20 unidades de combustible al recoger el ítem
+            Destroy(other.gameObject); // Destruye el ítem después de recogerlo
         }
     }
+
+    private void CollectFuel(float amount)
+    {
+        fuel += amount;
+        if (fuel > 100)
+        {
+            fuel = 100; // Asegúrate de que no supere el máximo
+        }
+        UpdateFuelUI(); // Actualiza la UI del combustible
+    }
+
 }
