@@ -22,9 +22,9 @@ public class StartScreenController : MonoBehaviour
         SceneManager.LoadScene("Credits");
     }
 
-    public void OnQuitButton()
+    public void OnBackButton()
     {
         // Salir del juego
-        Application.Quit();
+        SceneManager.LoadScene("StartScreen");
     }
 }
