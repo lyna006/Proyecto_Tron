@@ -380,6 +380,7 @@
 "Assets/Scripts/Item.cs"
 "Assets/Scripts/PlayerController.cs"
 "Assets/Scripts/Powers.cs"
+"Assets/Scripts/StartScreenController.cs"
 -langversion:9.0
 
 /deterministic
