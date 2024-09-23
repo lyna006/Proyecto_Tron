@@ -16,13 +16,16 @@ public class PlayerController : MonoBehaviour
     private float hyperSpeedMultiplier = 2f;
     private Renderer playerRenderer;
     private GameObject shieldEffectInstance; // Referencia al efecto visual del escudo
-    public GameObject shieldEffectPrefab;
+    public GameObject shieldEffectPrefab; // Prefab del efecto visual del escudo
     public float fuel;
     public float fuelConsumptionRate = 5f;
     public Slider fuelSlider;
     private int stepsSinceLastFuelConsumption = 0;
     public float speed;
     private Vector3 lastPosition;
+
+    // Referencia al GameOverManager para mostrar la pantalla de Game Over
+    public GameOverManager gameOverManager;
 
     protected virtual void Start()
     {
@@ -35,22 +38,7 @@ public class PlayerController : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            _direction = Vector2.up;
-        }
-        else if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            _direction = Vector2.down;
-        }
-        else if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            _direction = Vector2.left;
-        }
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            _direction = Vector2.right;
-        }
+        HandleInput();
 
         if (isHyperSpeedActive)
         {
@@ -68,6 +56,33 @@ public class PlayerController : MonoBehaviour
             {
                 DeactivateShield();
             }
+        }
+
+        if (fuel <= 0)
+        {
+            // Mostrar Game Over si el jugador se queda sin combustible
+            gameOverManager.ShowGameOver();
+            Destroy(gameObject); // Destruir el jugador
+        }
+    }
+
+    private void HandleInput()
+    {
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            _direction = Vector2.up;
+        }
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            _direction = Vector2.down;
+        }
+        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            _direction = Vector2.left;
+        }
+        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            _direction = Vector2.right;
         }
     }
 
@@ -97,7 +112,7 @@ public class PlayerController : MonoBehaviour
     {
         if (fuel > 0)
         {
-            fuel -= 1;
+            fuel -= fuelConsumptionRate * Time.deltaTime;
             UpdateFuelUI();
         }
         else
@@ -180,36 +195,19 @@ public class PlayerController : MonoBehaviour
         }
         else if (other.CompareTag("Obstacle"))
         {
-            ResetState();
-        }
-        else if (other.CompareTag("Fuel"))
-        {
-            CollectFuel(20);
-            // Reposiciona el ítem en lugar de destruirlo
-            Item itemComponent = other.GetComponent<Item>();
-            if (itemComponent != null)
-            {
-                itemComponent.RandomizePosition(); // Reaparece el ítem en una nueva posición
-            }
-            else
-            {
-                Debug.LogWarning("El objeto Fuel no tiene el componente 'Item'.");
-            }
+            // Mostrar pantalla de Game Over al chocar con un obstáculo
+            gameOverManager.ShowGameOver();
+            Destroy(gameObject); // Destruir el jugador
         }
         else if (other.CompareTag("Bomb"))
         {
             if (!isShieldActive) // Si el escudo NO está activo
             {
-                Destroy(gameObject);
+                gameOverManager.ShowGameOver(); // Mostrar pantalla de Game Over
+                Destroy(gameObject); // Destruir el jugador
                 Debug.Log("¡El jugador ha sido destruido por una bomba!");
             }
-
         }
-        //else if (other.CompareTag("Bot"))
-        //{
-        //  Destroy(gameObject);
-        //Debug.Log("¡El jugador ha sido destruido por una boT!");
-        //}
         else if (other.CompareTag("Shield"))
         {
             ActivateShield();
@@ -239,7 +237,6 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
 
     public virtual void CollectFuel(float amount)
     {
