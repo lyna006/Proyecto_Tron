@@ -868,6 +868,11 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &659176831 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4348981415884585342, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+  m_PrefabInstance: {fileID: 624461824777241055}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &686616426
 GameObject:
   m_ObjectHideFlags: 0
@@ -1292,7 +1297,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -217, y: 157}
+  m_AnchoredPosition: {x: -176.5, y: 134.5}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &978117627
@@ -2218,6 +2223,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   segmentPrefab: {fileID: 1899512486966579033, guid: 3692ca5acda06974cb9d5010744d6d3c, type: 3}
   initialSize: 3
+  shieldEffectPrefab: {fileID: 4348981415884585342, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
   fuel: 1e+13
   fuelConsumptionRate: 1e-14
   fuelSlider: {fileID: 1953112663}
@@ -2861,10 +2867,72 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   segmentPrefab: {fileID: 6264525817634981363, guid: a5bbcaad1ebe951438caf0a7021ed2d5, type: 3}
   initialSize: 3
+  shieldEffectPrefab: {fileID: 659176831}
   fuel: 100
   fuelConsumptionRate: 0.5
   fuelSlider: {fileID: 978117627}
   speed: 5
+--- !u!1001 &624461824777241055
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4348981415884585342, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+      propertyPath: m_Name
+      value: ShielColor
+      objectReference: {fileID: 0}
+    - target: {fileID: 8583227966532703789, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+      propertyPath: m_RootOrder
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 8583227966532703789, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 139.33963
+      objectReference: {fileID: 0}
+    - target: {fileID: 8583227966532703789, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 276.78064
+      objectReference: {fileID: 0}
+    - target: {fileID: 8583227966532703789, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -2.9182253
+      objectReference: {fileID: 0}
+    - target: {fileID: 8583227966532703789, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8583227966532703789, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8583227966532703789, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8583227966532703789, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8583227966532703789, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8583227966532703789, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8583227966532703789, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5f16250f5a7ba3e4c80b04609ed9094e, type: 3}
 --- !u!1001 &6578577889605653871
 PrefabInstance:
   m_ObjectHideFlags: 0

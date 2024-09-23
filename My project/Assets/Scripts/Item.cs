@@ -51,9 +51,6 @@ public class Item : MonoBehaviour
             case ItemType.TailGrowth:
                 player.GetComponent<PlayerController>().Grow();
                 break;
-            case ItemType.Bomb:
-                Explode(player);
-                return; // No reaparece en caso de bomba
             case ItemType.Shield:
                 player.GetComponent<PlayerController>().ActivateShield();
                 break;

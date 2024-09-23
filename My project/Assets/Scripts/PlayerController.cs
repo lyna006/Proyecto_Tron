@@ -14,7 +14,9 @@ public class PlayerController : MonoBehaviour
     private float hyperSpeedDuration = 5f;
     private float shieldDuration = 5f;
     private float hyperSpeedMultiplier = 2f;
-
+    private Renderer playerRenderer;
+    private GameObject shieldEffectInstance; // Referencia al efecto visual del escudo
+    public GameObject shieldEffectPrefab;
     public float fuel;
     public float fuelConsumptionRate = 5f;
     public Slider fuelSlider;
@@ -24,6 +26,7 @@ public class PlayerController : MonoBehaviour
 
     protected virtual void Start()
     {
+        playerRenderer = GetComponent<Renderer>();
         ResetState();
         lastPosition = transform.position;
         fuel = 100;
@@ -130,13 +133,24 @@ public class PlayerController : MonoBehaviour
     public void ActivateShield()
     {
         isShieldActive = true;
-        shieldDuration = 5f;
+        shieldDuration = 5f; // Duración del escudo
+        playerRenderer.material.color = Color.blue; // Cambia el color del jugador
+
+        // Instancia el efecto de escudo
+        shieldEffectInstance = Instantiate(shieldEffectPrefab, transform.position, Quaternion.identity, transform);
         Debug.Log("Shield Activated!");
     }
 
     public void DeactivateShield()
     {
         isShieldActive = false;
+        playerRenderer.material.color = Color.white; // Vuelve al color original
+
+        // Destruye el efecto de escudo
+        if (shieldEffectInstance != null)
+        {
+            Destroy(shieldEffectInstance);
+        }
         Debug.Log("Shield Deactivated!");
     }
 
@@ -184,8 +198,12 @@ public class PlayerController : MonoBehaviour
         }
         else if (other.CompareTag("Bomb"))
         {
-            Destroy(gameObject);
-            Debug.Log("¡El jugador ha sido destruido por una bomba!");
+            if (!isShieldActive) // Si el escudo NO está activo
+            {
+                Destroy(gameObject);
+                Debug.Log("¡El jugador ha sido destruido por una bomba!");
+            }
+
         }
         //else if (other.CompareTag("Bot"))
         //{
