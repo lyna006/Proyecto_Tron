@@ -2,38 +2,24 @@ using UnityEngine;
 
 public class Power : MonoBehaviour
 {
-    public enum PowerType
+    public BoxCollider2D gridArea; // Asigna esto desde el inspector
+
+    private void Start()
     {
-        Shield,
-        HyperSpeed
+        RandomizePosition();
     }
 
-    public PowerType powerType; // Define el tipo de poder para este objeto
-
-    private void OnTriggerEnter2D(Collider2D other)
+    public void RandomizePosition()
     {
-        // Verifica si el jugador ha colisionado con el poder
-        if (other.CompareTag("Player"))
+        if (gridArea == null)
         {
-            // Referencia al script del jugador
-            PlayerController player = other.GetComponent<PlayerController>();
-
-            if (player != null)
-            {
-                // Activa el poder correspondiente basado en el tipo de poder
-                switch (powerType)
-                {
-                    case PowerType.Shield:
-                        player.ActivateShield();
-                        break;
-                    case PowerType.HyperSpeed:
-                        player.ActivateHyperSpeed();
-                        break;
-                }
-
-                // Destruye el objeto de poder después de ser recolectado
-                Destroy(gameObject);
-            }
+            Debug.LogError("GridArea no asignada en el inspector para el objeto: " + gameObject.name);
+            return;
         }
+
+        Bounds bounds = gridArea.bounds;
+        float x = Random.Range(bounds.min.x, bounds.max.x);
+        float y = Random.Range(bounds.min.y, bounds.max.y);
+        transform.position = new Vector3(Mathf.Round(x), Mathf.Round(y), 0.0f);
     }
 }

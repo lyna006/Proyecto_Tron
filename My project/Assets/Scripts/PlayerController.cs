@@ -4,58 +4,51 @@ using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
-    // Variables de movimiento
-    private Vector2 _direction = Vector2.right;
-    private List<Transform> _segments = new List<Transform>();
+    protected Vector2 _direction = Vector2.right;
+    protected List<Transform> _segments = new List<Transform>();
     public Transform segmentPrefab;
     public int initialSize = 3;
 
-    // Variables de poderes
     private bool isShieldActive = false;
     private bool isHyperSpeedActive = false;
     private float hyperSpeedDuration = 5f;
     private float shieldDuration = 5f;
     private float hyperSpeedMultiplier = 2f;
 
-    // Variables de combustible
-    public float fuel = 100f; // Valor de combustible inicial
-    public float fuelConsumptionRate = 5f; // Combustible consumido cada 5 elementos de malla
-    public Slider fuelSlider; // Referencia al UI Slider para la barra de combustible
-    private int stepsSinceLastFuelConsumption = 0; // Pasos desde la última vez que se consumió combustible
-
-    // Variables para manejar la distancia recorrida
+    public float fuel;
+    public float fuelConsumptionRate = 5f;
+    public Slider fuelSlider;
+    private int stepsSinceLastFuelConsumption = 0;
+    public float speed;
     private Vector3 lastPosition;
 
-    private void Start()
+    protected virtual void Start()
     {
-        // Inicializa el estado del jugador y la barra de combustible
         ResetState();
         lastPosition = transform.position;
         fuel = 100;
         UpdateFuelUI();
     }
 
-    private void Update()
+    protected virtual void Update()
     {
-        // Manejo de dirección de movimiento con teclas
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             _direction = Vector2.up;
         }
-        else if (Input.GetKeyDown(KeyCode.S))
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             _direction = Vector2.down;
         }
-        else if (Input.GetKeyDown(KeyCode.A))
+        else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             _direction = Vector2.left;
         }
-        else if (Input.GetKeyDown(KeyCode.D))
+        else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             _direction = Vector2.right;
         }
 
-        // Controles de duración de poderes
         if (isHyperSpeedActive)
         {
             hyperSpeedDuration -= Time.deltaTime;
@@ -75,7 +68,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         for (int i = _segments.Count - 1; i > 0; i--)
         {
@@ -94,15 +87,14 @@ public class PlayerController : MonoBehaviour
             0.0f
         );
 
-        // Consume combustible cada vez que se mueve
         ConsumeFuel();
     }
 
-    private void ConsumeFuel()
+    protected virtual void ConsumeFuel()
     {
         if (fuel > 0)
         {
-            fuel -= 1; // Ajusta la cantidad consumida según lo necesites
+            fuel -= 1;
             UpdateFuelUI();
         }
         else
@@ -111,8 +103,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-    // Método para crecer la estela del jugador
     public void Grow()
     {
         Transform segment = Instantiate(segmentPrefab);
@@ -120,7 +110,6 @@ public class PlayerController : MonoBehaviour
         _segments.Add(segment);
     }
 
-    // Resetea el estado inicial del jugador y la estela
     public void ResetState()
     {
         for (int i = 1; i < _segments.Count; i++)
@@ -134,11 +123,10 @@ public class PlayerController : MonoBehaviour
             _segments.Add(Instantiate(segmentPrefab));
         }
         transform.position = Vector3.zero;
-        fuel = 100f; // Restablece el combustible al máximo
+        fuel = 100f;
         UpdateFuelUI();
     }
 
-    // Métodos para activar y desactivar el escudo
     public void ActivateShield()
     {
         isShieldActive = true;
@@ -152,7 +140,6 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Shield Deactivated!");
     }
 
-    // Métodos para activar y desactivar la hiper velocidad
     public void ActivateHyperSpeed()
     {
         isHyperSpeedActive = true;
@@ -166,42 +153,83 @@ public class PlayerController : MonoBehaviour
         Debug.Log("HyperSpeed Deactivated!");
     }
 
-    // Método para consumir combustible
-
-
-    // Actualiza la barra de combustible en la interfaz de usuario
     private void UpdateFuelUI()
     {
-        fuelSlider.value = fuel; // Asegúrate de que fuelSlider esté asignado en el Inspector
+        fuelSlider.value = fuel;
     }
 
-
-    // Manejo de colisiones con objetos
-    private void OnTriggerEnter2D(Collider2D other)
+    protected virtual void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Item"))
         {
-            Grow(); // Crece la estela al recoger un ítem
+            Grow();
         }
         else if (other.CompareTag("Obstacle"))
         {
-            ResetState(); // Reinicia el estado al chocar con un obstáculo
+            ResetState();
         }
         else if (other.CompareTag("Fuel"))
         {
-            CollectFuel(20); // Ejemplo: añade 20 unidades de combustible al recoger el ítem
-            Destroy(other.gameObject); // Destruye el ítem después de recogerlo
+            CollectFuel(20);
+            // Reposiciona el ítem en lugar de destruirlo
+            Item itemComponent = other.GetComponent<Item>();
+            if (itemComponent != null)
+            {
+                itemComponent.RandomizePosition(); // Reaparece el ítem en una nueva posición
+            }
+            else
+            {
+                Debug.LogWarning("El objeto Fuel no tiene el componente 'Item'.");
+            }
+        }
+        else if (other.CompareTag("Bomb"))
+        {
+            Destroy(gameObject);
+            Debug.Log("¡El jugador ha sido destruido por una bomba!");
+        }
+        //else if (other.CompareTag("Bot"))
+        //{
+        //  Destroy(gameObject);
+        //Debug.Log("¡El jugador ha sido destruido por una boT!");
+        //}
+        else if (other.CompareTag("Shield"))
+        {
+            ActivateShield();
+            // Reposiciona el ítem en lugar de destruirlo
+            Power powerComponent = other.GetComponent<Power>();
+            if (powerComponent != null)
+            {
+                powerComponent.RandomizePosition(); // Reaparece el ítem en una nueva posición
+            }
+            else
+            {
+                Debug.LogWarning("El objeto Shield no tiene el componente 'Item'.");
+            }
+        }
+        else if (other.CompareTag("Speed"))
+        {
+            ActivateHyperSpeed();
+            // Reposiciona el ítem en lugar de destruirlo
+            Power powerComponent = other.GetComponent<Power>();
+            if (powerComponent != null)
+            {
+                powerComponent.RandomizePosition(); // Reaparece el ítem en una nueva posición
+            }
+            else
+            {
+                Debug.LogWarning("El objeto Speed no tiene el componente 'Item'.");
+            }
         }
     }
 
-    private void CollectFuel(float amount)
+
+    public virtual void CollectFuel(float amount)
     {
         fuel += amount;
         if (fuel > 100)
         {
-            fuel = 100; // Asegúrate de que no supere el máximo
+            fuel = 100;
         }
-        UpdateFuelUI(); // Actualiza la UI del combustible
+        UpdateFuelUI();
     }
-
 }
